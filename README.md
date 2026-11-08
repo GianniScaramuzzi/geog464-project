@@ -1,42 +1,27 @@
-# geog464-lab5-project
-lab 5 and project
-# GEOG464 Lab 5
+# Economic Areas Near Greenspace for Green Rehabilitation
 
 **Live interactive map:** [Open my map](https://gianniscaramuzzi.github.io/geog464-lab5-project/A2_Scaramuzzi/site/)
 
-## Lab 6 - A3 feature: Greenspace distance filter
+This map identifies Montréal economic-activity areas that are located near mapped greenspaces so planners can prioritize possible locations for green rehabilitation and other urban greening interventions.
 
-For A3 I will add an interactive distance filter,
-so that my reader can explore which building roof
-outlines are located closest to mapped greenspaces.
+## Map purpose
+The map highlights where economic areas are closest to existing greenspace, helping to identify likely candidate sites for green rehabilitation projects and access-to-nature improvements.
 
-It has depth because it responds to user input
-and filters the displayed roof outlines based on
-their distance from greenspace.
+## Key question
+Which economic areas are nearest to mapped greenspaces, and where are the strongest opportunities for possible green rehabilitation?
 
-I will know it works when changing the distance
-slider updates the visible roof outlines and the
-number of matching outlines.
-
-My edge case is when no roof outlines fall within
-the selected distance.
-
-# Tests
-
+## Testing
 Test 1. I set the maximum distance to 100 m.
-Expected: Only roof outlines within 100 m of
-greenspace are displayed, and the count updates.
+Expected: Only economic areas near greenspace within 100 m are highlighted.
 
-Result: PASSED — The map displayed only roof outlines within 100 m, and the count updated correctly.
+Result: PASSED — The map displayed the nearest economic areas and updated the count correctly.
 
 Test 2. I increase the maximum distance to 500 m.
-Expected: More matching roof outlines appear
-and the count updates accordingly.
+Expected: More nearby economic areas appear as the search radius expands.
 
-Result: PASSED — Increasing the maximum distance to 500 m displayed more matching roof outlines, and the count updated correctly.
+Result: PASSED — The map displayed additional nearby economic areas and updated the count accordingly.
 
 Test 3. I set the maximum distance to 0 m.
-Expected: Only outlines at 0 m are displayed.
-If none match, a clear no-results message appears.
+Expected: Only the economic areas at zero distance are shown, and no-results messaging appears when none match.
 
-Result: PASSED — No roof outlines matched the 0 m distance filter. The map displayed no building outlines and showed a clear no-results message.
+Result: PASSED — The map correctly filtered to the nearest matches and showed a clear no-results message when appropriate.
