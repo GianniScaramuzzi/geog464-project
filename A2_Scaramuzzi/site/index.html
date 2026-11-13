@@ -16,27 +16,14 @@
     </div>
     <div class="headline-stat" aria-live="polite">
       <strong id="headline-count">Loading…</strong>
-      <span>economic areas within 100 m</span>
+      <span id="headline-label">economic areas within 100 m</span>
     </div>
   </header>
-
   <main>
     <section class="summary" aria-label="Project overview">
       <article class="stat-card">
-        <span class="stat-number" id="total-count">—</span>
-        <span class="stat-label">Economic areas in the screening zone</span>
-      </article>
-      <article class="stat-card stat-green">
-        <span class="stat-number" id="within-100-count">—</span>
-        <span class="stat-label">Economic areas within 100 m</span>
-      </article>
-      <article class="stat-card stat-mid">
-        <span class="stat-number" id="between-100-500-count">—</span>
-        <span class="stat-label">Economic areas 100–500 m</span>
-      </article>
-      <article class="stat-card stat-muted">
-        <span class="stat-number" id="over-500-count">—</span>
-        <span class="stat-label">Economic areas over 500 m</span>
+        <span class="stat-number" id="selected-count">— / —</span>
+        <span class="stat-label" id="selected-label">Selected roof outlines within 100 m of mapped greenspace</span>
       </article>
     </section>
 
@@ -46,13 +33,13 @@
           <p class="section-kicker">01 / EXPLORE</p>
           <h2>Explore priority economic areas</h2>
         </div>
-        <p class="section-note">Use the layer selector to compare nearby economic areas, mapped greenspaces, and broad planning zones. Click a mapped feature to review its proximity and screening context.</p>
+        <p class="section-note">The map opens to Montréal Island with the default 100 m results ready to browse. Click Zoom in the map’s top-right corner to choose an area or use the arrows to zoom in and highlight roof outlines. Adjust the distance slider to change the results; Reset restores the default filter and island view.</p>
       </div>
       <div class="map-key" aria-label="Map legend">
         <strong class="map-key-title">Distance to mapped greenspace (m)</strong>
-        <span><i class="swatch economic"></i> 0–100</span>
-        <span><i class="swatch mid"></i> &gt;100–500</span>
-        <span><i class="swatch outside"></i> &gt;500</span>
+        <span><i class="swatch economic"></i> 0–50</span>
+        <span><i class="swatch mid"></i> 50–100</span>
+        <span><i class="swatch outside"></i> &gt;100</span>
         <span><i class="swatch green"></i> Local greenspace</span>
       </div>
       <div class="distance-filter">
@@ -65,7 +52,7 @@
     type="range"
     id="distance-slider"
     min="0"
-    max="1000"
+    max="250"
     step="50"
     value="100"
   />
@@ -82,11 +69,11 @@
       <div>
         <p class="section-kicker">02 / INTERPRET</p>
         <h2>How are candidate areas selected?</h2>
-        <p>Each mapped feature represents roof geometry from Montréal's 2016 building dataset that overlaps economic-activity zones. The analysis screens for features near mapped local greenspace to help identify locations that may be suitable for future green rehabilitation or urban greening. Distance bands are separated into 100 metres, over 100 through 500 metres, and over 500 metres. These screening results do not confirm site suitability, property ownership, vacancy, or the feasibility of rehabilitation. The source is from 2016, so later construction or changes may be missing.</p>
+        <p>Each mapped feature represents roof geometry from Montréal's 2016 building dataset that overlaps economic-activity zones. The analysis screens for features near mapped local greenspace to help identify locations that may be suitable for future green rehabilitation or urban greening. Map colors show distance bands of 0–50 metres, 50–100 metres, and over 100 metres; the slider filters the results up to a maximum of 250 metres. These screening results do not confirm site suitability, property ownership, vacancy, or the feasibility of rehabilitation. The source is from 2016, so later construction or changes may be missing.</p>
       </div>
       <aside class="result-callout">
         <span class="callout-number" id="near-ratio">—</span>
-        <p>of the selected economic areas are within 100 m of mapped greenspace.</p>
+        <p id="near-ratio-label">selected roof outlines within 100 m of mapped greenspace.</p>
       </aside>
     </section>
 
