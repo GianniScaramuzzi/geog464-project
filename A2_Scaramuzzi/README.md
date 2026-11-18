@@ -54,3 +54,21 @@ Orange mapped features are within 100 m of greenspace, yellow features are over 
 
 The second, computed roof-distance layer is created by `Notebooks/process_building_footprints.py`: it keeps 2016 roof outlines with at least 50% overlap with economic-activity zones and calculates each outline's edge-to-edge distance to the nearest mapped greenspace in metres. The total check is 4,780 outlines: 278 within 100 m + 1,778 over 100 through 500 m + 2,724 over 500 m = 4,780.
 
+## Key question
+Which economic areas are nearest to mapped greenspaces, and where are the strongest opportunities for possible green rehabilitation?
+
+## Testing
+Test 1. I set the maximum distance to 100 m.
+Expected: Only economic areas near greenspace within 100 m are highlighted.
+
+Result: PASSED — The map displayed the nearest economic areas and updated the count correctly.
+
+Test 2. I increase the maximum distance to 500 m.
+Expected: More nearby economic areas appear as the search radius expands.
+
+Result: PASSED — The map displayed additional nearby economic areas and updated the count accordingly.
+
+Test 3. I set the maximum distance to 0 m.
+Expected: Only the economic areas at zero distance are shown, and no-results messaging appears when none match.
+
+Result: PASSED — The map correctly filtered to the nearest matches and showed a clear no-results message when appropriate.
