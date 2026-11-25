@@ -10,6 +10,7 @@ A city or environmental planner can explore which economic areas are closest to 
 2. Start Live Server from `site/index.html` (do not open the HTML file directly).
 3. Use the layer selector to compare economic areas within 100 m, 100–500 m, and over 500 m of mapped greenspace, alongside local green spaces and broad economic planning zones for context.
 4. Click a mapped feature to see its greenspace distance and overlap with an economic planning zone.
+5. Use the maximum-distance slider or enter a minimum and maximum from 0–250 m and apply the range. Applying a range replaces the slider filter; moving the slider switches back. Choose **Export GeoJSON** to download the active results with source attribution.
 
 Run `python3 -m pip install pyshp shapely` if these Python packages are not installed. Run `python3 Notebooks/process_building_footprints.py` to download Montréal's source data, classify roof outlines, and regenerate `Data/buildings/building_footprints_in_economic_zones.geojson`. Then start Live Server from `site/index.html` (do not open the HTML file directly). The existing analysis notebook is in `Notebooks/project.ipynb`.
 

@@ -58,11 +58,21 @@ Promise.all([
     return Number(feature.properties.greenspace_distance_m) <= maxScreeningDistance;
   });
 
-  const filteredBuildingsLayer = L.geoJSON({
-  type: 'FeatureCollection',
-  features: []
-}, {
-  style: function (feature) {
+  const markerFeatureByBuilding = new Map();
+  screenedBuildings.forEach(function (feature) {
+    const center = L.geoJSON(feature).getBounds().getCenter();
+    markerFeatureByBuilding.set(feature, {
+      type: 'Feature',
+      id: feature.id,
+      properties: feature.properties,
+      geometry: {
+        type: 'Point',
+        coordinates: [center.lng, center.lat]
+      }
+    });
+  });
+
+  function buildingStyle(feature) {
     const distance = feature.properties.greenspace_distance_m;
 
     if (distance <= 50) {
@@ -87,8 +97,9 @@ Promise.all([
         weight: 0.7
       };
     }
-  },
-  onEachFeature: function (feature, layer) {
+  }
+
+  function bindBuildingPopup(feature, layer) {
     const p = feature.properties;
 
     layer.bindPopup('<strong>Building roof outline (2016)</strong>' +
@@ -97,7 +108,50 @@ Promise.all([
       '<br>Overlap with economic planning zone: ' +
       safeText(p.economic_zone_overlap_percent) + '%');
   }
-});
+
+  const filteredBuildingsLayer = L.layerGroup();
+  const filteredOutlinesLayer = L.geoJSON({
+    type: 'FeatureCollection',
+    features: []
+  }, {
+    style: buildingStyle,
+    onEachFeature: bindBuildingPopup
+  });
+  const filteredMarkersLayer = L.geoJSON({
+    type: 'FeatureCollection',
+    features: []
+  }, {
+    pointToLayer: function (feature, latlng) {
+      const style = buildingStyle(feature);
+      return L.circleMarker(latlng, {
+        radius: 7,
+        color: '#ffffff',
+        weight: 2,
+        fillColor: style.fillColor,
+        fillOpacity: 0.95
+      });
+    },
+    onEachFeature: bindBuildingPopup
+  });
+  const outlineZoomLevel = 13;
+
+  function updateDisplayedBuildingScale() {
+    const visibleLayer = map.getZoom() < outlineZoomLevel
+      ? filteredMarkersLayer
+      : filteredOutlinesLayer;
+    const hiddenLayer = visibleLayer === filteredMarkersLayer
+      ? filteredOutlinesLayer
+      : filteredMarkersLayer;
+
+    if (filteredBuildingsLayer.hasLayer(hiddenLayer)) {
+      filteredBuildingsLayer.removeLayer(hiddenLayer);
+    }
+    if (!filteredBuildingsLayer.hasLayer(visibleLayer)) {
+      filteredBuildingsLayer.addLayer(visibleLayer);
+    }
+  }
+
+  map.on('zoomend', updateDisplayedBuildingScale);
 
   const economicZoneLayer = L.geoJSON(allEconomic, {
     style: { color: '#334155', fillColor: '#94a3b8', fillOpacity: 0, weight: 1, dashArray: '4 3' },
@@ -244,11 +298,12 @@ Promise.all([
 
   // Add the filtered building layer and greenspaces to the map.
   filteredBuildingsLayer.addTo(map);
+  updateDisplayedBuildingScale();
   greenLayer.addTo(map);
 
   // Layer selector.
   L.control.layers(null, {
-    'Filtered building roof outlines': filteredBuildingsLayer,
+    'Filtered roof outline sites': filteredBuildingsLayer,
     'Economic planning zones (context)': economicZoneLayer,
     'Local green spaces': greenLayer
   }, { collapsed: false, position: 'topleft' }).addTo(map);
@@ -256,50 +311,123 @@ Promise.all([
   // Connect the distance slider to the building layer.
   const distanceValue = document.getElementById('distance-value');
   const filterCount = document.getElementById('filter-count');
+  const exportButton = document.getElementById('export-filtered');
   const headlineCount = document.getElementById('headline-count');
   const headlineLabel = document.getElementById('headline-label');
-  const selectedCount = document.getElementById('selected-count');
-  const selectedLabel = document.getElementById('selected-label');
-  const nearRatio = document.getElementById('near-ratio');
-  const nearRatioLabel = document.getElementById('near-ratio-label');
+  const distanceRangeForm = document.getElementById('distance-range-form');
+  const minDistanceInput = document.getElementById('distance-min');
+  const maxDistanceInput = document.getElementById('distance-max');
+  const rangeError = document.getElementById('range-error');
+  let activeRange = null;
 
   function updateDistanceFilter() {
     const maxDistance = Number(distanceSlider.value);
 
     matchingBuildings = screenedBuildings.filter(function (feature) {
-      return Number(feature.properties.greenspace_distance_m) <= maxDistance;
+      const distance = Number(feature.properties.greenspace_distance_m);
+      return activeRange
+        ? distance >= activeRange.min && distance <= activeRange.max
+        : distance <= maxDistance;
     });
 
     updateAreaNavigator(matchingBuildings);
 
-    filteredBuildingsLayer.clearLayers();
-
-    filteredBuildingsLayer.addData({
+    filteredOutlinesLayer.clearLayers();
+    filteredOutlinesLayer.addData({
       type: 'FeatureCollection',
       features: matchingBuildings
     });
+    filteredMarkersLayer.clearLayers();
+    filteredMarkersLayer.addData({
+      type: 'FeatureCollection',
+      features: matchingBuildings.map(function (feature) {
+        return markerFeatureByBuilding.get(feature);
+      })
+    });
+    updateDisplayedBuildingScale();
+    exportButton.disabled = matchingBuildings.length === 0;
 
     distanceValue.textContent = maxDistance + ' m';
 
-    filterCount.textContent =
-      'Showing ' + matchingBuildings.length + ' of ' + screenedBuildings.length +
-      ' roof outlines within ' + maxDistance + ' m of mapped greenspace.';
-
     headlineCount.textContent =
       matchingBuildings.length + ' of ' + screenedBuildings.length;
-    headlineLabel.textContent = 'roof outlines within ' + maxDistance +
-      ' m of mapped greenspace';
-    selectedCount.textContent = matchingBuildings.length + ' / ' + screenedBuildings.length;
-    selectedLabel.textContent = 'Selected roof outlines within ' + maxDistance +
-      ' m of mapped greenspace';
-    nearRatio.textContent = matchingBuildings.length + ' / ' + screenedBuildings.length;
-    nearRatioLabel.textContent = 'roof outlines within ' + maxDistance +
-      ' m of mapped greenspace.';
+    headlineLabel.textContent = activeRange
+      ? 'roof outlines from ' + activeRange.min + ' to ' + activeRange.max +
+        ' m from mapped greenspace'
+      : 'roof outlines within ' + maxDistance + ' m of mapped greenspace';
 
     if (matchingBuildings.length === 0) {
+      filterCount.classList.add('filter-error');
+      filterCount.textContent = activeRange
+        ? 'No roof outlines found from ' + activeRange.min + ' to ' +
+          activeRange.max + ' m from mapped greenspace.'
+        : 'No roof outlines found within ' + maxDistance + ' m of mapped greenspace.';
+    } else if (activeRange) {
+      filterCount.classList.remove('filter-error');
       filterCount.textContent =
-        'No roof outlines found within ' + maxDistance + ' m of mapped greenspace.';
+        'Range search active. Move the slider to return to maximum-distance filtering.';
+    } else {
+      filterCount.classList.remove('filter-error');
+      filterCount.textContent = '';
     }
+  }
+
+  distanceRangeForm.addEventListener('submit', function (event) {
+    event.preventDefault();
+    const minDistance = minDistanceInput.valueAsNumber;
+    const maxDistance = maxDistanceInput.valueAsNumber;
+
+    if (!Number.isFinite(minDistance) || !Number.isFinite(maxDistance)) {
+      rangeError.textContent = 'Enter both a minimum and maximum distance.';
+      rangeError.hidden = false;
+      return;
+    }
+    if (minDistance < 0 || maxDistance > maxScreeningDistance) {
+      rangeError.textContent = 'Distances must be between 0 and ' +
+        maxScreeningDistance + ' m.';
+      rangeError.hidden = false;
+      return;
+    }
+    if (minDistance > maxDistance) {
+      rangeError.textContent = 'Minimum distance must not exceed maximum distance.';
+      rangeError.hidden = false;
+      return;
+    }
+
+    rangeError.textContent = '';
+    rangeError.hidden = true;
+    activeRange = { min: minDistance, max: maxDistance };
+    updateDistanceFilter();
+  });
+
+  function exportFilteredBuildings() {
+    const maxDistance = Number(distanceSlider.value);
+    const rangeDescription = activeRange
+      ? 'from ' + activeRange.min + ' to ' + activeRange.max + ' m'
+      : 'within ' + maxDistance + ' m';
+    const filenameDistance = activeRange
+      ? 'from-' + activeRange.min + '-to-' + activeRange.max
+      : 'within-' + maxDistance;
+    const exportData = {
+      type: 'FeatureCollection',
+      name: 'Montréal roof outlines ' + rangeDescription +
+        ' of mapped greenspace',
+      attribution: 'Building roofs: Ville de Montréal — Bâtiments 2D 2016 (CC BY 4.0, https://creativecommons.org/licenses/by/4.0/); greenspaces: Ville de Montréal — PUM 2050 (https://donnees.montreal.ca/dataset/niveaux-intensification-urbaine-densite-affectation-sol-pum-2050). Distances are derived from the supplied greenspace geometry.',
+      features: matchingBuildings
+    };
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+      type: 'application/geo+json'
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'montreal-roof-outlines-' + filenameDistance + 'm.geojson';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(function () {
+      URL.revokeObjectURL(url);
+    }, 0);
   }
 
   function resetMapView() {
@@ -308,6 +436,10 @@ Promise.all([
     const zoomButton = document.querySelector('.area-navigator-zoom');
 
     distanceSlider.value = distanceSlider.defaultValue;
+    distanceRangeForm.reset();
+    rangeError.textContent = '';
+    rangeError.hidden = true;
+    activeRange = null;
     navigatorExpanded = false;
     panel.hidden = true;
     zoomButton.textContent = 'Zoom';
@@ -318,16 +450,18 @@ Promise.all([
   }
 
   distanceSlider.addEventListener('input', function () {
+    activeRange = null;
+    rangeError.textContent = '';
+    rangeError.hidden = true;
     updateDistanceFilter();
   });
+  exportButton.addEventListener('click', exportFilteredBuildings);
 
   // Apply the initial slider value.
 updateDistanceFilter();
 
   document.getElementById('status').textContent =
-    'Loaded ' + buildings.features.length + ' building roof outlines from 2016, filtered by overlap with ' +
-    allEconomic.features.length + ' economic planning zones, and ' +
-    greenSpaces.features.length + ' local green-space features.';
+  'Map data loaded.';
 })
 .catch(function (error) {
   document.getElementById('status').textContent =

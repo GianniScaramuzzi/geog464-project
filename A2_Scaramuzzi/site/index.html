@@ -10,9 +10,9 @@
 <body>
   <header class="hero">
     <div class="hero-copy">
-      <p class="eyebrow">MONTRÉAL · GREEN REHABILITATION PLANNING</p>
+      <p class="eyebrow">MONTRÉAL · GREENSPACE SCREENING</p>
       <h1>Economic areas near greenspace</h1>
-      <p class="intro">Identify economic-activity areas close to mapped greenspaces to highlight priority locations for possible green rehabilitation and urban greening opportunities.</p>
+      <p class="intro">This map highlights economic-area rooftops near greenspace to help planners screen for potential urban greening.</p>
     </div>
     <div class="headline-stat" aria-live="polite">
       <strong id="headline-count">Loading…</strong>
@@ -20,67 +20,57 @@
     </div>
   </header>
   <main>
-    <section class="summary" aria-label="Project overview">
-      <article class="stat-card">
-        <span class="stat-number" id="selected-count">— / —</span>
-        <span class="stat-label" id="selected-label">Selected roof outlines within 100 m of mapped greenspace</span>
-      </article>
-    </section>
-
     <section class="map-section">
       <div class="section-heading">
-        <div>
-          <p class="section-kicker">01 / EXPLORE</p>
-          <h2>Explore priority economic areas</h2>
-        </div>
-        <p class="section-note">The map opens to Montréal Island with the default 100 m results ready to browse. Click Zoom in the map’s top-right corner to choose an area or use the arrows to zoom in and highlight roof outlines. Adjust the distance slider to change the results; Reset restores the default filter and island view.</p>
+        <h2>Explore the map</h2>
+        <p class="section-note">Use the slider or search a min–max range; zoom in to see roof outlines.</p>
       </div>
       <div class="map-key" aria-label="Map legend">
-        <strong class="map-key-title">Distance to mapped greenspace (m)</strong>
+        <strong class="map-key-title">Distance to greenspace</strong>
         <span><i class="swatch economic"></i> 0–50</span>
         <span><i class="swatch mid"></i> 50–100</span>
         <span><i class="swatch outside"></i> &gt;100</span>
         <span><i class="swatch green"></i> Local greenspace</span>
       </div>
       <div class="distance-filter">
-  <label for="distance-slider">
-    Maximum distance to greenspace:
-    <strong id="distance-value">100 m</strong>
-  </label>
-
-  <input
-    type="range"
-    id="distance-slider"
-    min="0"
-    max="250"
-    step="50"
-    value="100"
-  />
-
-  <p id="filter-count" aria-live="polite">
-    Showing economic areas within 100 m.
-  </p>
-</div>
+        <label for="distance-slider">
+          Maximum distance:
+          <strong id="distance-value">100 m</strong>
+        </label>
+        <input
+          type="range"
+          id="distance-slider"
+          min="0"
+          max="250"
+          step="50"
+          value="100"
+        />
+        <button type="button" id="export-filtered" disabled>
+          Export GeoJSON
+        </button>
+        <p id="filter-count" aria-live="polite"></p>
+      </div>
+      <form class="distance-range" id="distance-range-form" novalidate>
+        <div class="distance-range-heading">
+          <strong>Search a distance range</strong>
+          <span>Enter a minimum and maximum from 0 to 250 m.</span>
+        </div>
+        <div class="distance-range-fields">
+          <label for="distance-min">
+            Min (m)
+            <input id="distance-min" type="number" min="0" max="250" step="any" inputmode="decimal" aria-describedby="range-error" required />
+          </label>
+          <span class="distance-range-separator" aria-hidden="true">to</span>
+          <label for="distance-max">
+            Max (m)
+            <input id="distance-max" type="number" min="0" max="250" step="any" inputmode="decimal" aria-describedby="range-error" required />
+          </label>
+          <button type="submit" id="apply-distance-range">Apply range</button>
+        </div>
+        <p id="range-error" class="range-error" aria-live="polite" hidden></p>
+      </form>
       <div id="map" role="region" aria-label="Interactive map of Montréal economic areas and green spaces"></div>
       <p id="status" class="status" aria-live="polite">Loading map data…</p>
-    </section>
-
-    <section class="explanation">
-      <div>
-        <p class="section-kicker">02 / INTERPRET</p>
-        <h2>How are candidate areas selected?</h2>
-        <p>Each mapped feature represents roof geometry from Montréal's 2016 building dataset that overlaps economic-activity zones. The analysis screens for features near mapped local greenspace to help identify locations that may be suitable for future green rehabilitation or urban greening. Map colors show distance bands of 0–50 metres, 50–100 metres, and over 100 metres; the slider filters the results up to a maximum of 250 metres. These screening results do not confirm site suitability, property ownership, vacancy, or the feasibility of rehabilitation. The source is from 2016, so later construction or changes may be missing.</p>
-      </div>
-      <aside class="result-callout">
-        <span class="callout-number" id="near-ratio">—</span>
-        <p id="near-ratio-label">selected roof outlines within 100 m of mapped greenspace.</p>
-      </aside>
-    </section>
-
-    <section class="limits">
-      <p class="section-kicker">03 / SCOPE</p>
-      <h2>What this map can—and cannot—tell us</h2>
-      <p>This map identifies economic-activity areas near mapped greenspaces to support screening for possible green rehabilitation. It is a planning aid rather than a site-level feasibility study. The mapped features are based on roof geometry and a screening threshold, not parcel ownership, land-use intensity, public access, or the practical suitability of a rehabilitation project. Verify current conditions and site details with authoritative local data before advancing any intervention.</p>
     </section>
 
     <footer>
