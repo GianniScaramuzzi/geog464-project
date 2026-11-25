@@ -1,6 +1,7 @@
 # Economic Areas Near Greenspace for Green Rehabilitation
 
 **Live interactive map:** (https://gianniscaramuzzi.github.io/geog464-project/A2_Scaramuzzi/site/)
+
 This map identifies Montréal economic-activity areas that are located near mapped greenspaces so planners can prioritize possible locations for green rehabilitation and other urban greening interventions.
 
 ## Map purpose
